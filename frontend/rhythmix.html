@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RhythmiX — Connected</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #fff7fb;
+      --text: #1e1b4b;
+      --muted: #4b5563;
+      --border: rgba(168, 85, 247, 0.20);
+      --surface: rgba(255, 255, 255, 0.78);
+      --blue: #7dd3fc;
+      --purple: #c4b5fd;
+      --pink: #f9a8d4;
+      --green: #86efac;
+      --yellow: #fde68a;
+      --orange: #fdba74;
+      --red: #fca5a5;
+      --deep-purple: #6d28d9;
+      --deep-pink: #be185d;
+      --deep-blue: #0369a1;
+      --nav-h: 78px;
+    }
+
+    html, body { width: 100%; min-height: 100%; }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(249, 168, 212, 0.55), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.50), transparent 35%),
+        radial-gradient(circle at center, rgba(196, 181, 253, 0.32), transparent 45%),
+        #fff7fb;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .app {
+      width: min(100vw, 430px);
+      height: min(100vh, 932px);
+      background:
+        radial-gradient(circle at top right, rgba(249, 168, 212, 0.55), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.46), transparent 36%),
+        radial-gradient(circle at 45% 30%, rgba(196, 181, 253, 0.36), transparent 38%),
+        linear-gradient(180deg, #fff7fb 0%, #f6f2ff 45%, #eef8ff 100%);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(109, 40, 217, 0.18);
+    }
+
+    @media (min-width: 520px) {
+      .app { border-radius: 38px; border: 1px solid rgba(255,255,255,0.72); }
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 22px 16px calc(var(--nav-h) + 22px);
+      overflow-y: auto;
+      opacity: 0;
+      transform: translateX(18px);
+      pointer-events: none;
+      transition: 0.25s ease;
+    }
+
+    .screen.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+    .screen::-webkit-scrollbar { width: 0; }
+
+    .welcome-screen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 22px;
+    }
+
+    .glass, .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      backdrop-filter: blur(22px);
+      box-shadow: 0 18px 48px rgba(109, 40, 217, 0.09), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    .kicker {
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--deep-blue);
+      background: rgba(224, 242, 254, 0.72);
+      border: 1px solid rgba(14, 165, 233, 0.20);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .app-title {
+      margin-top: 18px;
+      font-size: clamp(46px, 13vw, 64px);
+      line-height: 0.92;
+      letter-spacing: -2.8px;
+      font-weight: 950;
+      background: linear-gradient(135deg, #6d28d9, #be185d, #0369a1);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .tagline { margin-top: 14px; font-size: 20px; font-weight: 850; color: var(--text); }
+    .description { margin-top: 13px; color: var(--muted); line-height: 1.55; font-size: 14px; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+    .page-title h1 { font-size: 25px; letter-spacing: -0.7px; }
+    .page-title p { margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+
+    .avatar, .profile-pic {
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f9a8d4, #c4b5fd, #7dd3fc);
+      color: var(--text);
+      box-shadow: 0 0 28px rgba(249, 168, 212, 0.45);
+      font-weight: 950;
+    }
+
+    .avatar { min-width: 46px; width: 46px; height: 46px; border-radius: 16px; }
+    .profile-pic { width: 76px; height: 76px; margin: 0 auto 11px; border-radius: 26px; font-size: 26px; }
+
+    .section-title { margin: 18px 2px 10px; color: var(--text); font-size: 15px; font-weight: 950; }
+
+    button {
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 20px;
+      padding: 14px 15px;
+      color: var(--text);
+      background: linear-gradient(135deg, #f9a8d4, #c4b5fd, #7dd3fc);
+      box-shadow: 0 14px 34px rgba(168, 85, 247, 0.18);
+      font-size: 14px;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    button:active { transform: scale(0.98); }
+    .secondary-btn { color: #312e81; background: rgba(255,255,255,0.62); border: 1px solid rgba(168,85,247,0.18); box-shadow: none; }
+    .warning-btn { background: linear-gradient(135deg, #fdba74, #f9a8d4); }
+    .btn-stack { display: grid; gap: 10px; margin-top: 14px; }
+    .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+
+    .score-card { padding: 18px; display: grid; grid-template-columns: 124px 1fr; gap: 15px; align-items: center; margin-bottom: 13px; }
+    .score-ring { --score: 82%; width: 122px; height: 122px; border-radius: 999px; background: conic-gradient(var(--blue) 0 var(--score), rgba(255,255,255,0.75) var(--score) 100%); display: grid; place-items: center; position: relative; }
+    .score-ring::after { content: ""; position: absolute; inset: 12px; border-radius: 999px; background: white; border: 1px solid rgba(168,85,247,0.16); }
+    .score-value { position: relative; z-index: 2; text-align: center; }
+    .score-value strong { display: block; font-size: 31px; letter-spacing: -1px; }
+    .score-value span { color: var(--muted); font-size: 10.5px; }
+    .score-info h2 { margin-bottom: 7px; font-size: 18px; line-height: 1.16; }
+    .score-info p { color: var(--muted); font-size: 12.7px; line-height: 1.45; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .state-card { padding: 15px; min-height: 103px; }
+    .state-head { display: flex; justify-content: space-between; align-items: center; }
+    .state-head h3, .label { color: var(--text); font-size: 12px; font-weight: 950; }
+    .icon-box { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 14px; background: rgba(125, 211, 252, 0.24); font-size: 17px; }
+    .state-card strong { display: block; margin-top: 12px; font-size: 25px; letter-spacing: -0.7px; }
+    .meter { height: 7px; border-radius: 999px; background: rgba(109,40,217,0.09); margin-top: 11px; overflow: hidden; }
+    .meter span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--pink), var(--blue)); }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .badge { width: fit-content; padding: 6px 9px; border-radius: 999px; background: rgba(255,255,255,0.60); border: 1px solid rgba(168,85,247,0.14); color: #5b21b6; font-size: 10.5px; font-weight: 950; text-transform: uppercase; }
+    .badge.high, .badge.danger { color: #9f1239; background: rgba(252,165,165,0.42); }
+    .badge.medium { color: #92400e; background: rgba(253,230,138,0.55); }
+    .badge.low, .badge.fixed { color: #5b21b6; background: rgba(221,214,254,0.55); }
+    .badge.completed, .badge.good, .badge.flexible { color: #166534; background: rgba(187,247,208,0.55); }
+    .badge.unfinished { color: #9a3412; background: rgba(254,215,170,0.55); }
+
+    .action-card, .list-card, .profile-card, .input-card, .calendar-event, .schedule-block, .insight-card, .summary-item { padding: 15px; margin-top: 11px; }
+    .action-card small { color: var(--deep-blue); font-weight: 950; font-size: 11px; }
+    .action-card h2, .event-title { margin-top: 5px; font-size: 18px; font-weight: 950; }
+    .action-card p, .event-note, .reason { margin-top: 7px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .alert-card { padding: 15px; margin-top: 12px; border-radius: 22px; background: linear-gradient(135deg, rgba(254,249,195,0.82), rgba(252,231,243,0.68)); border: 1px solid rgba(234,179,8,0.22); }
+    .alert-card strong { display: block; color: #92400e; font-size: 14px; }
+    .alert-card p { margin-top: 6px; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+
+    .event-time { color: var(--deep-blue); font-size: 12px; font-weight: 950; }
+
+    .field { margin-top: 12px; }
+    .field label, .slider-top label { display: block; margin-bottom: 7px; color: var(--text); font-size: 12px; font-weight: 950; }
+    .field input, .field select {
+      width: 100%;
+      border: 1px solid rgba(168,85,247,0.18);
+      outline: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.70);
+      border-radius: 17px;
+      padding: 13px 14px;
+      font-size: 14px;
+    }
+
+    .slider-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+    .slider-top span { color: var(--deep-blue); font-size: 12.5px; font-weight: 950; }
+    input[type="range"] { width: 100%; accent-color: var(--deep-pink); }
+
+    .summary-grid { margin-top: 13px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .summary-item span { display: block; color: var(--muted); font-size: 10.8px; }
+    .summary-item strong { display: block; margin-top: 5px; font-size: 14px; line-height: 1.2; }
+
+    .chart { height: 170px; padding: 16px; display: flex; align-items: end; justify-content: space-between; gap: 8px; }
+    .bar-wrap { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 8px; }
+    .chart-bar { width: 100%; max-width: 28px; min-height: 16px; border-radius: 999px 999px 8px 8px; background: linear-gradient(180deg, var(--blue), var(--purple)); }
+    .bar-label { color: var(--muted); font-size: 10px; font-weight: 800; }
+
+    .toast { display: none; margin-top: 12px; padding: 13px; border-radius: 18px; background: rgba(220,252,231,0.76); border: 1px solid rgba(34,197,94,0.20); color: #166534; font-size: 13px; font-weight: 850; }
+    .toast.show { display: block; }
+
+    .bottom-nav {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      height: 72px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(168,85,247,0.18);
+      backdrop-filter: blur(24px);
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 2px;
+      padding: 7px;
+      z-index: 50;
+      box-shadow: 0 -12px 36px rgba(109,40,217,0.12);
+    }
+
+    .nav-btn { padding: 6px 1px; border-radius: 18px; color: #6d5d86; background: transparent; border: 0; box-shadow: none; font-size: 9px; line-height: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .nav-btn span:first-child { font-size: 16px; }
+    .nav-btn.active { color: var(--deep-purple); background: rgba(196,181,253,0.38); }
+    .nav-hidden .bottom-nav { display: none; }
+    .nav-hidden .screen { padding-bottom: 22px; }
+
+    .task-check { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px dashed rgba(109,40,217,0.10); }
+    .task-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--deep-pink); }
+    .task-check.completed .task-text { text-decoration: line-through; opacity: 0.65; }
+    .task-text { color: var(--text); font-size: 14px; font-weight: 700; line-height: 1.35; }
+    .task-energy { margin-top: 4px; color: #6b7280; font-size: 11px; font-weight: 700; }
+
+    .recommendation-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 10px 0 0;
+    }
+
+    .recommendation-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .recommendation-list li::before {
+      content: "•";
+      flex: 0 0 14px;
+      width: 14px;
+      margin-top: 1px;
+      color: var(--deep-purple);
+      font-size: 18px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .recommendation-list li.warning-item::before {
+      content: "⚠️";
+      flex: 0 0 22px;
+      width: 22px;
+      margin-top: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .recommendation-list li.task-check::before,
+    .recommendation-list li.no-bullet::before {
+      content: none;
+      display: none;
+    }
+
+    .auth-box {
+      position: absolute;
+      inset: 0;
+      z-index: 999;
+      background: linear-gradient(180deg, #fff7fb, #eef8ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-box.hidden { display: none; }
+
+    .month-calendar {
+      padding: 15px;
+      margin-top: 11px;
+    }
+
+    .calendar-month-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 11px;
+      margin-bottom: 13px;
+    }
+
+    .calendar-month-head h3 {
+      font-size: 16px;
+      font-weight: 950;
+      letter-spacing: -0.3px;
+    }
+
+    .calendar-month-head button {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 16px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+    }
+
+    .calendar-weekday {
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 950;
+      padding: 4px 0;
+    }
+
+    .calendar-day {
+      min-height: 42px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(168,85,247,0.13);
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 950;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .calendar-day.empty {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .calendar-day.today {
+      border-color: rgba(14,165,233,0.35);
+      background: rgba(224,242,254,0.78);
+      color: var(--deep-blue);
+    }
+
+    .calendar-day.selected {
+      background: linear-gradient(135deg, #f9a8d4, #c4b5fd, #7dd3fc);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(168,85,247,0.18);
+    }
+
+    .calendar-day.has-tasks::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--deep-pink);
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .selected-date-line {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 370px) {
+      .score-card { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .grid-2, .summary-grid { grid-template-columns: 1fr; }
+      .nav-btn { font-size: 8px; }
+      .calendar-day { min-height: 38px; font-size: 11px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app nav-hidden" id="app">
+    <section class="screen active welcome-screen" id="welcomeScreen">
+      <div class="kicker">AI Calendar + Body State Planner</div>
+      <h1 class="app-title">RhythmiX</h1>
+      <div class="tagline">Tune your body. Own your day.</div>
+      <p class="description">Your smart decision and calendar optimization system. RhythmiX uses your current body state and task backend to recommend what to do next.</p>
+      <div class="action-card glass">
+        <small>BACKEND STATUS</small>
+        <h2 id="backendStatus">Checking...</h2>
+        <p id="backendUserLine">Login to sync your tasks.</p>
+      </div>
+      <div class="btn-stack">
+        <button onclick="startApp()">Get Started</button>
+        <button class="secondary-btn" onclick="showAuth()">Login / Sign Up</button>
+      </div>
+    </section>
+
+    <section class="screen" id="dashboardScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Good Morning</h1>
+          <p>Body readiness + task overview</p>
+        </div>
+        <div class="avatar">RX</div>
+      </div>
+
+      <div class="score-card glass">
+        <div class="score-ring" id="dashboardRing">
+          <div class="score-value">
+            <strong id="dashboardScore">82%</strong>
+            <span>Readiness</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <h2 id="dashboardLabel">Ready for Deep Work</h2>
+          <p id="dashboardSummary">Your body state supports a focused work block.</p>
+          <div class="badge-row" id="dashboardBadges"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="state-card glass">
+          <div class="state-head"><h3>Energy</h3><div class="icon-box">⚡</div></div>
+          <strong id="energyCard">82%</strong>
+          <div class="meter"><span id="energyBar"></span></div>
+        </div>
+
+        <div class="state-card glass">
+          <div class="state-head"><h3>Recovery</h3><div class="icon-box">💚</div></div>
+          <strong id="recoveryCard">78%</strong>
+          <div class="meter"><span id="recoveryBar"></span></div>
+        </div>
+
+        <div class="state-card glass">
+          <div class="state-head"><h3>Focus</h3><div class="icon-box">🧠</div></div>
+          <strong id="focusCard">86%</strong>
+          <div class="meter"><span id="focusBar"></span></div>
+        </div>
+
+        <div class="state-card glass">
+          <div class="state-head"><h3>Stress</h3><div class="icon-box">🌡️</div></div>
+          <strong id="stressCard">34%</strong>
+          <div class="meter"><span id="stressBar"></span></div>
+        </div>
+      </div>
+
+      <div class="section-title">Today's Best Action</div>
+      <div class="action-card glass">
+        <small>RECOMMENDED NOW</small>
+        <h2 id="bestActionTitle">Add tasks first</h2>
+        <p id="bestActionText">Once Firebase tasks exist, RhythmiX can recommend the best one.</p>
+      </div>
+
+      <div class="btn-stack">
+        <button onclick="openRecommendation()">What should I do now?</button>
+        <button class="secondary-btn" onclick="navTo('calendarScreen')">Open Tasks</button>
+      </div>
+    </section>
+
+    <section class="screen" id="calendarScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Tasks</h1>
+          <p>Your calendar tasks for your logged-in UID</p>
+        </div>
+        <div class="avatar">📅</div>
+      </div>
+
+      <div class="alert-card">
+        <strong id="calendarConnectionLabel">Connected Mode</strong>
+        <p id="calendarConnectionText">Select a date to view tasks. Unfinished tasks are automatically arranged by priority.</p>
+      </div>
+
+      <div class="month-calendar glass">
+        <div class="calendar-month-head">
+          <button class="secondary-btn" onclick="changeCalendarMonth(-1)">‹</button>
+          <div>
+            <h3 id="calendarMonthTitle">Calendar</h3>
+            <div class="selected-date-line" id="selectedDateLine">Selected date</div>
+          </div>
+          <button class="secondary-btn" onclick="changeCalendarMonth(1)">›</button>
+        </div>
+
+        <div class="calendar-grid">
+          <div class="calendar-weekday">Sun</div>
+          <div class="calendar-weekday">Mon</div>
+          <div class="calendar-weekday">Tue</div>
+          <div class="calendar-weekday">Wed</div>
+          <div class="calendar-weekday">Thu</div>
+          <div class="calendar-weekday">Fri</div>
+          <div class="calendar-weekday">Sat</div>
+        </div>
+
+        <div class="calendar-grid" id="calendarMonthGrid"></div>
+      </div>
+
+      <div class="section-title" id="taskDateTitle">Tasks for selected date</div>
+      <div id="calendarList"></div>
+
+      <div class="list-card glass" id="rxQuickTaskForm">
+        <h3>Add New Task</h3>
+
+        <div class="field">
+          <label>Title</label>
+          <input id="rxTaskTitle" placeholder="Example: Revise DBMS" />
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <input id="rxTaskDescription" placeholder="Example: Complete unit 3 notes" />
+        </div>
+
+        <div class="field">
+          <label>Due Date</label>
+          <input id="rxTaskDueDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Priority</label>
+          <select id="rxTaskPriority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select id="rxTaskCategory">
+            <option value="study" selected>Study</option>
+            <option value="work">Work</option>
+            <option value="health">Health</option>
+            <option value="personal">Personal</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Energy Required</label>
+          <select id="rxTaskEnergy">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Estimated Minutes</label>
+          <input id="rxTaskMinutes" type="number" value="30" />
+        </div>
+
+        <div class="btn-stack">
+          <button onclick="addFirebaseTaskFromForm()">Save Task</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="inputScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Body Inputs</h1>
+          <p>Adjust values to update score and recommendation</p>
+        </div>
+        <div class="avatar">🎚️</div>
+      </div>
+
+      <div class="score-card glass">
+        <div class="score-ring" id="inputRing">
+          <div class="score-value">
+            <strong id="inputScore">82%</strong>
+            <span>Live Score</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <h2 id="inputLabel">Ready for Deep Work</h2>
+          <p id="inputSummary">Readiness updates live using Energy, Focus, Recovery and Low Stress.</p>
+        </div>
+      </div>
+
+      <div id="sliderList"></div>
+      <button onclick="openRecommendation()">Generate Recommendation</button>
+    </section>
+
+    <section class="screen" id="recommendationScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Recommendation</h1>
+          <p>Best action using body state + tasks</p>
+        </div>
+        <div class="avatar">✨</div>
+      </div>
+
+      <div class="glass" style="padding:18px;">
+        <div class="badge-row" style="margin-top:0;margin-bottom:12px;">
+          <div class="badge good" id="recBadge">SMART PLAN</div>
+        </div>
+        <h2 class="app-title" style="font-size:34px; margin-top:0;" id="recTitle">No task selected</h2>
+        <p class="reason" id="recReason">Add pending tasks to get a recommendation.</p>
+
+        <div class="summary-grid">
+          <div class="summary-item"><span>Duration</span><strong id="recDuration">0 min</strong></div>
+          <div class="summary-item"><span>Readiness</span><strong id="recReadiness">82%</strong></div>
+          <div class="summary-item"><span>Energy Match</span><strong id="recEnergy">-</strong></div>
+          <div class="summary-item"><span>Priority</span><strong id="recPriority">-</strong></div>
+        </div>
+      </div>
+
+      <div class="list-card glass">
+        <h3>Do Now</h3>
+        <ul class="recommendation-list" id="doList"></ul>
+      </div>
+
+      <div class="list-card glass">
+        <h3>Avoid</h3>
+        <ul class="recommendation-list" id="avoidList"></ul>
+      </div>
+
+      <div class="list-card glass">
+        <h3>Recovery Analysis</h3>
+        <div class="summary-grid">
+          <div class="summary-item"><span>Energy Used</span><strong id="energySpent">0 pts</strong></div>
+          <div class="summary-item"><span>Break Needed</span><strong id="breakMinutes">0 min</strong></div>
+        </div>
+        <p class="reason" id="breakMessage">Tick completed tasks to estimate recovery.</p>
+      </div>
+
+      <div class="btn-stack">
+        <button onclick="markRecommendedDone()">Mark Recommended Done</button>
+        <button class="secondary-btn" onclick="showScreen('dashboardScreen')">Back to Dashboard</button>
+      </div>
+    </section>
+
+    <section class="screen" id="optimizeScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Optimize</h1>
+          <p>Simple AI-ready scheduling logic</p>
+        </div>
+        <div class="avatar">⚡</div>
+      </div>
+
+      <div class="alert-card">
+        <strong>Schedule Logic</strong>
+        <p>Unfinished tasks are arranged by priority first, then by estimated time. Calendar API can be added later.</p>
+      </div>
+
+      <div class="section-title">Recommended Order</div>
+      <div id="optimizedTaskList"></div>
+    </section>
+
+    <section class="screen" id="insightsScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Insights</h1>
+          <p>Task completion and body-state overview</p>
+        </div>
+        <div class="avatar">📊</div>
+      </div>
+
+      <div class="chart glass" id="energyChart"></div>
+
+      <div class="grid-2" style="margin-top:12px;">
+        <div class="state-card glass"><h3>Completed Tasks</h3><strong id="completedTasks">0</strong></div>
+        <div class="state-card glass"><h3>Unfinished</h3><strong id="unfinishedTasks">0</strong></div>
+        <div class="state-card glass"><h3>Total Tasks</h3><strong id="totalTasks">0</strong></div>
+        <div class="state-card glass"><h3>Focus Blocks</h3><strong id="focusBlocks">0</strong></div>
+      </div>
+    </section>
+
+    <section class="screen" id="profileScreen">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Profile</h1>
+          <p>Account and personalization</p>
+        </div>
+        <div class="avatar">👤</div>
+      </div>
+
+      <div class="profile-card glass">
+        <div class="profile-pic">R</div>
+        <h2 id="profileNameText">RhythmiX User</h2>
+        <p style="color:var(--muted); margin-top:4px; word-break:break-all;" id="profileGoalText">Not logged in</p>
+      </div>
+
+      <div class="btn-stack">
+        <button onclick="showAuth()">Login / Sign Up</button>
+        <button class="warning-btn" onclick="logoutUser()">Logout</button>
+      </div>
+
+      <div class="toast" id="profileToast">Done.</div>
+    </section>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-target="dashboardScreen" onclick="navTo('dashboardScreen')"><span>🏠</span><span>Home</span></button>
+      <button class="nav-btn" data-target="calendarScreen" onclick="navTo('calendarScreen')"><span>📅</span><span>Tasks</span></button>
+      <button class="nav-btn" data-target="inputScreen" onclick="navTo('inputScreen')"><span>🎚️</span><span>Input</span></button>
+      <button class="nav-btn" data-target="optimizeScreen" onclick="navTo('optimizeScreen')"><span>⚡</span><span>Optimize</span></button>
+      <button class="nav-btn" data-target="insightsScreen" onclick="navTo('insightsScreen')"><span>📊</span><span>Insights</span></button>
+      <button class="nav-btn" data-target="profileScreen" onclick="navTo('profileScreen')"><span>👤</span><span>Profile</span></button>
+    </nav>
+
+    <div class="auth-box hidden" id="authBox">
+      <div class="glass" style="width:100%; max-width:360px; padding:20px;">
+        <h2 style="margin-bottom:8px;">RhythmiX Login</h2>
+        <p class="description" style="margin-bottom:16px;">Login or create an account to sync your tasks.</p>
+
+        <div class="field">
+          <label>Email</label>
+          <input id="rxEmail" type="email" placeholder="Enter email" />
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <input id="rxPassword" type="password" placeholder="Enter password" />
+        </div>
+
+        <div class="btn-stack">
+          <button onclick="loginUser()">Login</button>
+          <button class="secondary-btn" onclick="signupUser()">Sign Up</button>
+          <button class="secondary-btn" onclick="hideAuth()">Close</button>
+        </div>
+
+        <div class="toast" id="rxAuthToast"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4w94HPtKAlOxBwIGlecZ4cf1xPzkrGW4",
+      authDomain: "rhythmx-86624.firebaseapp.com",
+      projectId: "rhythmx-86624",
+      storageBucket: "rhythmx-86624.firebasestorage.app",
+      messagingSenderId: "105610266111",
+      appId: "1:105610266111:web:feb664e44a42e5903993ca",
+      measurementId: "G-YQ3NP5RQJE"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
+
+    let currentUser = null;
+    let unsubscribeTasks = null;
+    let firebaseTasks = [];
+    let recommendedTask = null;
+
+    let calendarViewDate = new Date();
+    let selectedCalendarDate = toDateKey(new Date());
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const appState = {
+      body: { sleep: 7.5, hrv: 72, heartRate: 74, mood: 78, energy: 82, stress: 34, focus: 86, recovery: 78, activity: 56 }
+    };
+
+    const sliderConfig = [
+      { key: "sleep", label: "Sleep Hours", min: 0, max: 10, step: 0.5, suffix: "h" },
+      { key: "hrv", label: "HRV Score", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "heartRate", label: "Heart Rate", min: 45, max: 130, step: 1, suffix: " bpm" },
+      { key: "mood", label: "Mood", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "energy", label: "Energy", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "stress", label: "Stress", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "focus", label: "Focus", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "recovery", label: "Recovery", min: 0, max: 100, step: 1, suffix: "%" },
+      { key: "activity", label: "Activity Level", min: 0, max: 100, step: 1, suffix: "%" }
+    ];
+
+    function toDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatPrettyDate(dateKey) {
+      const date = new Date(dateKey + "T00:00:00");
+      return date.toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function calculateReadiness() {
+      const body = appState.body;
+      return Math.round((body.energy + body.focus + body.recovery + (100 - body.stress)) / 4);
+    }
+
+    function energyLevelFromScore(score) {
+      if (score >= 75) return "high";
+      if (score >= 45) return "medium";
+      return "low";
+    }
+
+    function energyScore(level) {
+      if (level === "high") return 3;
+      if (level === "medium") return 2;
+      return 1;
+    }
+
+    function priorityScore(level) {
+      if (level === "high") return 3;
+      if (level === "medium") return 2;
+      return 1;
+    }
+
+    function priorityRank(priority) {
+      if (priority === "high") return 3;
+      if (priority === "medium") return 2;
+      return 1;
+    }
+
+    function getTaskDate(task) {
+      return task.dueDate || toDateKey(new Date());
+    }
+
+    function sortTasksByPriority(tasks) {
+      return [...tasks].sort((a, b) => {
+        const aDone = a.status === "done";
+        const bDone = b.status === "done";
+
+        if (aDone !== bDone) return aDone ? 1 : -1;
+
+        const dateCompare = getTaskDate(a).localeCompare(getTaskDate(b));
+        if (dateCompare !== 0) return dateCompare;
+
+        const priorityDifference =
+          priorityRank(b.priority || "medium") - priorityRank(a.priority || "medium");
+
+        if (priorityDifference !== 0) return priorityDifference;
+
+        return Number(a.estimatedMinutes || 30) - Number(b.estimatedMinutes || 30);
+      });
+    }
+
+    function getRecommendationFromTasks() {
+      const pending = sortTasksByPriority(firebaseTasks.filter(task => task.status !== "done"));
+      const userEnergy = energyLevelFromScore(appState.body.energy);
+      const allowedEnergy = energyScore(userEnergy);
+      const availableMinutes = appState.body.focus >= 75 ? 90 : appState.body.focus >= 50 ? 60 : 30;
+
+      const matching = pending.filter(task => {
+        const taskEnergy = energyScore(task.energyRequired || "medium");
+        const taskMinutes = Number(task.estimatedMinutes || 30);
+        return taskEnergy <= allowedEnergy && taskMinutes <= availableMinutes;
+      });
+
+      return matching[0] || pending[0] || null;
+    }
+
+    function setRing(id, score) {
+      const element = document.getElementById(id);
+      if (element) element.style.setProperty("--score", score + "%");
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll(".screen").forEach(screen => screen.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.target === screenId));
+      renderAll();
+    }
+
+    function navTo(screenId) {
+      showScreen(screenId);
+    }
+
+    function startApp() {
+      document.getElementById("app").classList.remove("nav-hidden");
+      showScreen("dashboardScreen");
+    }
+
+    function showAuth() {
+      document.getElementById("authBox").classList.remove("hidden");
+    }
+
+    function hideAuth() {
+      document.getElementById("authBox").classList.add("hidden");
+    }
+
+    function showToast(id, message) {
+      const toast = document.getElementById(id);
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    async function loginUser() {
+      const email = document.getElementById("rxEmail").value.trim();
+      const password = document.getElementById("rxPassword").value.trim();
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        hideAuth();
+      } catch (error) {
+        showToast("rxAuthToast", error.message);
+      }
+    }
+
+    async function signupUser() {
+      const email = document.getElementById("rxEmail").value.trim();
+      const password = document.getElementById("rxPassword").value.trim();
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        hideAuth();
+      } catch (error) {
+        showToast("rxAuthToast", error.message);
+      }
+    }
+
+    async function logoutUser() {
+      await signOut(auth);
+      showAuth();
+    }
+
+    function listenToTasks(uid) {
+      if (unsubscribeTasks) unsubscribeTasks();
+
+      const taskQuery = query(collection(db, "tasks"), where("uid", "==", uid));
+
+      unsubscribeTasks = onSnapshot(taskQuery, (snapshot) => {
+        firebaseTasks = snapshot.docs.map(taskDoc => ({ id: taskDoc.id, ...taskDoc.data() }));
+        renderAll();
+      }, (error) => {
+        console.error(error);
+        alert("Firestore error: " + error.message);
+      });
+    }
+
+    async function addFirebaseTaskFromForm() {
+      if (!currentUser) {
+        showAuth();
+        return;
+      }
+
+      const title = document.getElementById("rxTaskTitle").value.trim();
+      const description = document.getElementById("rxTaskDescription").value.trim();
+      const dueDate = document.getElementById("rxTaskDueDate").value || selectedCalendarDate;
+      const priority = document.getElementById("rxTaskPriority").value;
+      const category = document.getElementById("rxTaskCategory").value;
+      const energyRequired = document.getElementById("rxTaskEnergy").value;
+      const estimatedMinutes = Number(document.getElementById("rxTaskMinutes").value) || 30;
+
+      if (!title) {
+        alert("Task title is required");
+        return;
+      }
+
+      await addDoc(collection(db, "tasks"), {
+        uid: currentUser.uid,
+        title,
+        description,
+        priority,
+        category,
+        energyRequired,
+        estimatedMinutes,
+        status: "pending",
+        dueDate,
+        createdAt: serverTimestamp(),
+        completedAt: null
+      });
+
+      document.getElementById("rxTaskTitle").value = "";
+      document.getElementById("rxTaskDescription").value = "";
+      document.getElementById("rxTaskDueDate").value = selectedCalendarDate;
+      document.getElementById("rxTaskMinutes").value = "30";
+    }
+
+    async function markFirebaseTaskDone(taskId, isDone) {
+      await updateDoc(doc(db, "tasks", taskId), {
+        status: isDone ? "done" : "pending",
+        completedAt: isDone ? serverTimestamp() : null
+      });
+    }
+
+    async function deleteFirebaseTask(taskId) {
+      await deleteDoc(doc(db, "tasks", taskId));
+    }
+
+    function renderDashboard() {
+      const body = appState.body;
+      const score = calculateReadiness();
+      recommendedTask = getRecommendationFromTasks();
+
+      document.getElementById("dashboardScore").textContent = score + "%";
+      document.getElementById("inputScore").textContent = score + "%";
+
+      setRing("dashboardRing", score);
+      setRing("inputRing", score);
+
+      document.getElementById("energyCard").textContent = body.energy + "%";
+      document.getElementById("recoveryCard").textContent = body.recovery + "%";
+      document.getElementById("focusCard").textContent = body.focus + "%";
+      document.getElementById("stressCard").textContent = body.stress + "%";
+
+      document.getElementById("energyBar").style.width = body.energy + "%";
+      document.getElementById("recoveryBar").style.width = body.recovery + "%";
+      document.getElementById("focusBar").style.width = body.focus + "%";
+      document.getElementById("stressBar").style.width = body.stress + "%";
+
+      const label = score >= 75 ? "Ready for Deep Work" : score >= 55 ? "Balanced Work Mode" : "Recovery First";
+
+      document.getElementById("dashboardLabel").textContent = label;
+      document.getElementById("inputLabel").textContent = label;
+      document.getElementById("dashboardSummary").textContent = `Energy ${body.energy}%, focus ${body.focus}%, recovery ${body.recovery}%, stress ${body.stress}%.`;
+
+      document.getElementById("dashboardBadges").innerHTML = `
+        <span class="badge good">${firebaseTasks.length} tasks</span>
+        <span class="badge ${energyLevelFromScore(body.energy)}">${energyLevelFromScore(body.energy)} energy</span>
+        <span class="badge ${body.stress > 65 ? "danger" : "good"}">${body.stress > 65 ? "stress alert" : "stable stress"}</span>
+      `;
+
+      document.getElementById("bestActionTitle").textContent = recommendedTask ? recommendedTask.title : "Add tasks first";
+      document.getElementById("bestActionText").textContent = recommendedTask
+        ? `Recommended because it fits your ${energyLevelFromScore(body.energy)} energy and has ${recommendedTask.priority || "medium"} priority.`
+        : "No pending Firebase task found for this user.";
+    }
+
+    function renderCalendar() {
+      renderMonthCalendar();
+
+      const list = document.getElementById("calendarList");
+
+      if (!currentUser) {
+        list.innerHTML = `
+          <div class="calendar-event glass">
+            <div class="event-title">Login required</div>
+            <div class="event-note">Login to read your tasks.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const selectedTasks = firebaseTasks.filter(task => {
+        return getTaskDate(task) === selectedCalendarDate;
+      });
+
+      const sortedTasks = sortTasksByPriority(selectedTasks);
+
+      document.getElementById("taskDateTitle").textContent =
+        `Tasks for ${formatPrettyDate(selectedCalendarDate)}`;
+
+      if (!sortedTasks.length) {
+        list.innerHTML = `
+          <div class="calendar-event glass">
+            <div class="event-title">No tasks on this date</div>
+            <div class="event-note">Select another date or add a task below.</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = sortedTasks.map(task => {
+        const isDone = task.status === "done";
+
+        return `
+          <div class="calendar-event glass ${task.priority === "high" ? "high-priority" : ""}">
+            <div class="event-time">${task.dueDate || "Today"} • ${task.category || "task"}</div>
+
+            <div
+              class="event-title"
+              style="${isDone ? "text-decoration:line-through; opacity:0.6;" : ""}"
+            >
+              ${escapeHtml(task.title || "Untitled")}
+            </div>
+
+            <div class="event-note">${escapeHtml(task.description || "")}</div>
+
+            <div class="badge-row">
+              <span class="badge ${task.priority || "medium"}">${task.priority || "medium"} priority</span>
+              <span class="badge fixed">${task.energyRequired || "medium"} energy</span>
+              <span class="badge unfinished">${task.estimatedMinutes || 30} min</span>
+              <span class="badge ${isDone ? "completed" : "unfinished"}">${task.status || "pending"}</span>
+            </div>
+
+            <div class="btn-row-2">
+              <button class="secondary-btn" onclick="window.rxMarkTaskDone('${task.id}', ${!isDone})">
+                ${isDone ? "Mark Pending" : "Mark Done"}
+              </button>
+              <button class="warning-btn" onclick="window.rxDeleteTask('${task.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMonthCalendar() {
+      const grid = document.getElementById("calendarMonthGrid");
+      const title = document.getElementById("calendarMonthTitle");
+      const selectedLine = document.getElementById("selectedDateLine");
+
+      if (!grid || !title || !selectedLine) return;
+
+      const year = calendarViewDate.getFullYear();
+      const month = calendarViewDate.getMonth();
+
+      title.textContent = `${monthNames[month]} ${year}`;
+      selectedLine.textContent = `Selected: ${formatPrettyDate(selectedCalendarDate)}`;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+      const todayKey = toDateKey(new Date());
+
+      let html = "";
+
+      for (let i = 0; i < startDay; i++) {
+        html += `<div class="calendar-day empty"></div>`;
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const currentDate = new Date(year, month, day);
+        const dateKey = toDateKey(currentDate);
+        const hasTasks = firebaseTasks.some(task => getTaskDate(task) === dateKey);
+
+        html += `
+          <div
+            class="calendar-day
+              ${dateKey === todayKey ? "today" : ""}
+              ${dateKey === selectedCalendarDate ? "selected" : ""}
+              ${hasTasks ? "has-tasks" : ""}"
+            onclick="selectCalendarDate('${dateKey}')"
+          >
+            ${day}
+          </div>
+        `;
+      }
+
+      grid.innerHTML = html;
+
+      const dueDateInput = document.getElementById("rxTaskDueDate");
+      if (dueDateInput && !dueDateInput.value) {
+        dueDateInput.value = selectedCalendarDate;
+      }
+    }
+
+    function selectCalendarDate(dateKey) {
+      selectedCalendarDate = dateKey;
+
+      const selectedDateObject = new Date(dateKey + "T00:00:00");
+      calendarViewDate = new Date(selectedDateObject.getFullYear(), selectedDateObject.getMonth(), 1);
+
+      const dueDateInput = document.getElementById("rxTaskDueDate");
+      if (dueDateInput) dueDateInput.value = selectedCalendarDate;
+
+      renderCalendar();
+    }
+
+    function changeCalendarMonth(direction) {
+      calendarViewDate.setMonth(calendarViewDate.getMonth() + direction);
+      renderCalendar();
+    }
+
+    function renderRecommendation() {
+      recommendedTask = getRecommendationFromTasks();
+      const score = calculateReadiness();
+
+      document.getElementById("recReadiness").textContent = score + "%";
+
+      if (!recommendedTask) {
+        document.getElementById("recTitle").textContent = "No pending task";
+        document.getElementById("recReason").textContent = "Add pending tasks in the Tasks tab to get a recommendation.";
+        document.getElementById("recDuration").textContent = "0 min";
+        document.getElementById("recEnergy").textContent = "-";
+        document.getElementById("recPriority").textContent = "-";
+        document.getElementById("doList").innerHTML = `<li>No task available.</li>`;
+        document.getElementById("avoidList").innerHTML = `<li class="warning-item">Do not overload yourself without choosing a task.</li>`;
+        return;
+      }
+
+      document.getElementById("recTitle").textContent = recommendedTask.title;
+      document.getElementById("recReason").textContent = `This task matches your current energy and available focus window. Priority: ${recommendedTask.priority || "medium"}.`;
+      document.getElementById("recDuration").textContent = `${recommendedTask.estimatedMinutes || 30} min`;
+      document.getElementById("recEnergy").textContent = recommendedTask.energyRequired || "medium";
+      document.getElementById("recPriority").textContent = recommendedTask.priority || "medium";
+
+      document.getElementById("doList").innerHTML = `
+        <li class="task-check no-bullet" id="recommendedCheckRow">
+          <input type="checkbox" onchange="window.rxLocalRecovery(this.checked)">
+          <div>
+            <div class="task-text">${escapeHtml(recommendedTask.title || "Task")}</div>
+            <div class="task-energy">Estimated energy use: ${energyScore(recommendedTask.energyRequired || "medium") * 12} pts</div>
+          </div>
+        </li>
+      `;
+
+      document.getElementById("avoidList").innerHTML = `
+        <li class="warning-item">Avoid starting high-energy tasks if your body input is low.</li>
+        <li class="warning-item">Avoid multitasking during this block.</li>
+      `;
+    }
+
+    function renderSliders() {
+      const container = document.getElementById("sliderList");
+
+      container.innerHTML = sliderConfig.map(item => {
+        const value = appState.body[item.key];
+
+        return `
+          <div class="input-card glass">
+            <div class="slider-top">
+              <label>${item.label}</label>
+              <span id="${item.key}Value">${value}${item.suffix}</span>
+            </div>
+            <input
+              type="range"
+              min="${item.min}"
+              max="${item.max}"
+              step="${item.step}"
+              value="${value}"
+              oninput="window.rxHandleSlider('${item.key}', this.value)"
+            />
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderInsights() {
+      const completed = firebaseTasks.filter(task => task.status === "done").length;
+      const unfinished = firebaseTasks.filter(task => task.status !== "done").length;
+
+      document.getElementById("completedTasks").textContent = completed;
+      document.getElementById("unfinishedTasks").textContent = unfinished;
+      document.getElementById("totalTasks").textContent = firebaseTasks.length;
+      document.getElementById("focusBlocks").textContent = firebaseTasks.filter(task => (task.estimatedMinutes || 0) >= 45).length;
+
+      const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const values = [52, 64, 58, appState.body.energy, 72, 60, 68];
+
+      document.getElementById("energyChart").innerHTML = values.map((value, index) => `
+        <div class="bar-wrap">
+          <div class="chart-bar" style="height:${value}%"></div>
+          <div class="bar-label">${labels[index]}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderOptimize() {
+      const pending = firebaseTasks.filter(task => task.status !== "done");
+      const sorted = sortTasksByPriority(pending);
+
+      document.getElementById("optimizedTaskList").innerHTML = sorted.length
+        ? sorted.map((task, index) => `
+          <div class="calendar-event glass">
+            <div class="event-time">#${index + 1} recommended order</div>
+            <div class="event-title">${escapeHtml(task.title || "Task")}</div>
+            <div class="event-note">
+              ${task.dueDate || "Today"} •
+              ${task.priority || "medium"} priority •
+              ${task.energyRequired || "medium"} energy •
+              ${task.estimatedMinutes || 30} min
+            </div>
+          </div>
+        `).join("")
+        : `
+          <div class="calendar-event glass">
+            <div class="event-title">No pending tasks</div>
+            <div class="event-note">Add tasks to create an optimized order.</div>
+          </div>
+        `;
+    }
+
+    function renderProfile() {
+      const profileName = document.getElementById("profileNameText");
+      const profileGoal = document.getElementById("profileGoalText");
+      const backendStatus = document.getElementById("backendStatus");
+      const backendUserLine = document.getElementById("backendUserLine");
+
+      if (currentUser) {
+        profileName.textContent = currentUser.email || "RhythmiX User";
+        profileGoal.textContent = "UID: " + currentUser.uid;
+        backendStatus.textContent = "User connected";
+        backendUserLine.textContent = currentUser.email || currentUser.uid;
+      } else {
+        profileName.textContent = "RhythmiX User";
+        profileGoal.textContent = "Not logged in";
+        backendStatus.textContent = "Login required";
+        backendUserLine.textContent = "Login to sync your tasks.";
+      }
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderCalendar();
+      renderRecommendation();
+      renderInsights();
+      renderOptimize();
+      renderProfile();
+    }
+
+    function handleSlider(key, value) {
+      appState.body[key] = Number(value);
+
+      const config = sliderConfig.find(item => item.key === key);
+      document.getElementById(key + "Value").textContent = appState.body[key] + config.suffix;
+
+      renderAll();
+    }
+
+    function localRecovery(checked) {
+      const points = recommendedTask ? energyScore(recommendedTask.energyRequired || "medium") * 12 : 0;
+      const used = checked ? points : 0;
+      const mins = used === 0 ? 0 : used <= 15 ? 5 : used <= 30 ? 10 : 15;
+
+      document.getElementById("energySpent").textContent = used + " pts";
+      document.getElementById("breakMinutes").textContent = mins + " min";
+      document.getElementById("breakMessage").textContent = used
+        ? `You spent around ${used} energy points. Take a ${mins}-minute break before the next block.`
+        : "Tick completed tasks to estimate recovery.";
+
+      document.getElementById("recommendedCheckRow")?.classList.toggle("completed", checked);
+    }
+
+    async function markRecommendedDone() {
+      if (!recommendedTask) return;
+
+      await markFirebaseTaskDone(recommendedTask.id, true);
+      showToast("profileToast", "Recommended task marked done.");
+      showScreen("calendarScreen");
+    }
+
+    function openRecommendation() {
+      renderRecommendation();
+      showScreen("recommendationScreen");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;"
+      }[char]));
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+
+      if (user) {
+        hideAuth();
+        listenToTasks(user.uid);
+      } else {
+        if (unsubscribeTasks) unsubscribeTasks();
+        firebaseTasks = [];
+      }
+
+      renderAll();
+    });
+
+    window.navTo = navTo;
+    window.showScreen = showScreen;
+    window.startApp = startApp;
+    window.showAuth = showAuth;
+    window.hideAuth = hideAuth;
+    window.loginUser = loginUser;
+    window.signupUser = signupUser;
+    window.logoutUser = logoutUser;
+    window.addFirebaseTaskFromForm = addFirebaseTaskFromForm;
+    window.rxMarkTaskDone = markFirebaseTaskDone;
+    window.rxDeleteTask = deleteFirebaseTask;
+    window.rxHandleSlider = handleSlider;
+    window.rxLocalRecovery = localRecovery;
+    window.openRecommendation = openRecommendation;
+    window.markRecommendedDone = markRecommendedDone;
+    window.selectCalendarDate = selectCalendarDate;
+    window.changeCalendarMonth = changeCalendarMonth;
+
+    renderSliders();
+
+    const dueDateInput = document.getElementById("rxTaskDueDate");
+    if (dueDateInput) {
+      dueDateInput.value = selectedCalendarDate;
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
